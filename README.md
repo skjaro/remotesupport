@@ -1,7 +1,7 @@
 # RemoteSupport
-GLPI Plugin for direct VNC connection inside ticket
+GLPI Plugin for direct VNC connection from browser inside computer from server
 
-This Plugin add a simple button inside tickets: 
+This Plugin add a simple button inside computer: 
 
 ![immagine](https://user-images.githubusercontent.com/35736369/142444042-0cd5627b-5a5d-4586-8022-083e51d6f06c.png)
 
@@ -10,35 +10,60 @@ If user is correctly connected to one or more computer it will launch a VNC conn
 
 - Prerequisites
 1) VNC Must be installed in the destination PC
-2) PC Name must me correct and resolved inside your DNS Server
-3) Add a script in your pc and add a node inside regedit
+2) Fusion inventory must be installed on server with GLPI
+3) Agent must be installed on remote PC
+4) Easy noVNC must be installed on server with GLPI
 
 
-1) write a script (you will find inside resources) like this (let's assume in c:\startVNC.bat)
-> SET S=%1
-> 
-> SET S=%S:~7,-2%
-> 
-> call "C:\Program Files\TightVNC\tvnviewer.exe" %S%
-> 
-> quit 0
+clone it and build binnary with make, edit Makefile in remotesupport plugin and build with make
 
-2) Open regedit and add
-Windows Registry Editor Version 5.00
+Create systemd unit file:
 ```
-[HKEY_CLASSES_ROOT\vnc]
-@="URL:vnc Protocol"
-"URL Protocol"=""
+[Unit]
+Description=Easy NoVNC
 
-[HKEY_CLASSES_ROOT\vnc\shell]
+[Service]
+ExecStart=/usr/local/bin/easy-novnc -a :8888 -H -P
 
-[HKEY_CLASSES_ROOT\vnc\shell\open]
-
-[HKEY_CLASSES_ROOT\vnc\shell\open\command]
-@="\"c:\\startVNC.bat\" \"%1\""
+[Install]
+WantedBy=multi-user.target
 ```
-3) Download and install the plugin as usual
+
+It will listen on 8888 port on local host.
 
 
-TODO: a lot of documentation
+Secure connection to server if you want, some ports are hardcoded in current status of plugin
+```
+<IfModule mod_ssl.c>
+<VirtualHost *:443>
+  RewriteEngine On
+  ProxyPreserveHost On
+  ProxyRequests Off
 
+  # allow for upgrading to websockets
+  RewriteEngine On
+  RewriteCond %{HTTP:Upgrade} =websocket [NC]
+  RewriteRule /(.*)           ws://localhost:8888/$1 [P,L]
+  RewriteCond %{HTTP:Upgrade} !=websocket [NC]
+  RewriteRule /glpi/(.*)           http://localhost/glpi/$1 [P,L]
+  RewriteCond %{HTTP:Upgrade} !=websocket [NC]
+  RewriteRule /(.*)           http://localhost:8888/$1 [P,L]
+
+  ProxyPass "/" "http://localhost:8888/"
+  ProxyPassReverse "/" "http://localhost:8888/"
+
+  ProxyPass "/glpi/" "http://localhost/glpi/"
+  ProxyPassReverse "/glpi/" "http://localhost/glpi/"
+
+  ProxyPass "/vnc" "ws://localhost:8888/vnc"
+  ProxyPassReverse "/vnc" "ws://localhost:8888/vnc
+
+
+  ServerName server.name.lan
+
+SSLCertificateFile /etc/ssl/certs/ssl-cert-snakeoil.pem
+SSLCertificateKeyFile /etc/ssl/private/ssl-cert-snakeoil.key
+
+</VirtualHost>
+</IfModule>
+```
