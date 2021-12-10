@@ -62,24 +62,21 @@ $ret = $req->next();
 $states_ids[$ret['name']] = $ret['id'];
 print_r($states_ids);
 
-$DB->update("glpi_computers", [
-    'states_id' => $states_ids["Offline"]],
-    ['1' => '1']
+$DB->update("glpi_computers", [ 
+	'states_id' => $states_ids["Offline"]  ] ,
+	[ '1' => '1' ]
 );
 
+$ids = [];
 foreach ($checked as $s) {
-    echo $s->computers_id . " ";
-
-    $comp = new Computer();
-    $comp->getFromDB($s->computers_id);
-    $comp->fields["states_id"] = $states_ids["Online"];
-    $DB->update("glpi_computers", [
-        'states_id' => $comp->fields["states_id"]],
-        ['id' => $s->computers_id]
-    );
-    echo $comp->fields["contact"] . "\n";
-
+	echo $s->computers_id."\n";
+	$ids[] = $s->computers_id;
 }
+
+$DB->update("glpi_computers", [ 
+	'states_id' =>  $states_ids["Online"] ],
+	[ 'id' => $ids   ]
+);
 
 //    print_r($a_computerextend);
 exit(0);

@@ -56,6 +56,20 @@ class PluginRemotesupportRemotesupport extends CommonDBTM
         return $states_ids;
     }
 
+    public static function getContactArray()
+    {
+        global $DB;
+
+        $req = $DB->request('glpi_computers', ['FIELDS' => ['glpi_computers' => ['id', 'contact']]]);
+
+	$contactids = [];
+	while ($ret = $req->next()) {
+		$contactids[$ret["id"]] = $ret["contact"];
+	}
+	
+	return $contactids;
+    }
+
     public static function cronRemotesupport($task)
     {
         global $DB;
@@ -117,18 +131,21 @@ class PluginRemotesupportRemotesupport extends CommonDBTM
             ['1' => '1']
         );
 
+	$ids = [];
+	$cids = self::getContactArray();
         foreach ($checked as $s) {
 
             $comp = new Computer();
             $comp->getFromDB($s->computers_id);
-            $comp->fields["states_id"] = $stids["Online"];
-            $DB->update("glpi_computers", [
-                'states_id' => $comp->fields["states_id"]],
-                ['id' => $s->computers_id]
-            );
-            Toolbox::logInFile("remotsupport", $s->computers_id . " " . $comp->fields["contact"] . "\n");
+            Toolbox::logInFile("remotsupport", $s->computers_id . " " . $cids[$s->computers_id] . "\n");
+	    $ids[] = $s->computers_id;
+	}
 
-        }
+	$DB->update("glpi_computers", [
+	    'states_id' => $stids["Online"] ],
+	    ['id' => $ids ]
+	);
+
 
         return 0;
     }
