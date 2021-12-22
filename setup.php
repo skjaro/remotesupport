@@ -37,6 +37,8 @@ function plugin_init_remotesupport()
             'Computer' => array('PluginRemotesupportRemotesupport', 'showInfo'),
         );
 
+	Plugin::registerClass('PluginRemotesupportConfig', ['addtabon' => 'Config']);
+
         CronTask::Register('PluginRemotesupportRemotesupport', 'remotesupport', 300,
             ['mode' => 2, 'allowmode' => 3, 'logs_lifetime' => 30,
                 'comment' => 'Remotesupport crontab search agents']);

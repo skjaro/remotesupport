@@ -3,6 +3,7 @@ package main
 import (
      "fmt"
      "os"
+     "strconv"
      "net/http"
      "time"
      "io/ioutil"
@@ -116,8 +117,15 @@ func init() {
 }
 
 func main() {
+
+	//	str_debug := os.Getenv("debug")
+		str_threads := os.Getenv("threads")
+
+		threads, _ := strconv.Atoi(str_threads)
+	//	debug, _ := strconv.ParseBool(str_debug)
+
 		//startTime := time.Now()
-		results := boundedParallelGet(checks, 100)
+		results := boundedParallelGet(checks, threads)
 		//seconds := time.Since(startTime).Seconds()
 		//tmplate := "requests: %d/%d in %v"
 
