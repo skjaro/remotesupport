@@ -88,7 +88,7 @@ class PluginRemotesupportRemotesupport extends CommonDBTM
             return 0;
         }
 
-        Toolbox::logInFile("remotsupport", "Starting search of agents\n");
+        Toolbox::logInFile("remotesupport", "Starting search of agents\n");
 
         if ($config["run_mode"] == "Parallel") {
             $pfConfig = new PluginFusioninventoryConfig();
@@ -140,7 +140,7 @@ class PluginRemotesupportRemotesupport extends CommonDBTM
                 // proc_close in order to avoid a deadlock
                 $return_value = proc_close($process);
 
-                Toolbox::logInFile("remotsupport", "command returned $return_value\n");
+                Toolbox::logInFile("remotesupport", "command returned $return_value\n");
             }
 
         } else {
@@ -178,12 +178,12 @@ class PluginRemotesupportRemotesupport extends CommonDBTM
 
         $ids = [];
         $cids = self::getContactArray();
-        
+
         foreach ($checked as $s) {
 
             $comp = new Computer();
             $comp->getFromDB($s->computers_id);
-            Toolbox::logInFile("remotsupport", $s->computers_id . " " . $cids[$s->computers_id] . "\n");
+            Toolbox::logInFile("remotesupport", $s->computers_id . " " . $cids[$s->computers_id] . "\n");
             $ids[] = $s->computers_id;
         }
 
@@ -198,6 +198,6 @@ class PluginRemotesupportRemotesupport extends CommonDBTM
     public static function cronInfo($name)
     {
         return [
-            'description' => "Agent search remotesupport"];
+            'description' => __('Agent search remotesupport')];
     }
 }

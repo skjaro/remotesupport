@@ -58,7 +58,7 @@ class PluginRemotesupportConfig extends CommonDBTM {
       echo "<tr>";	
       echo "<td >" . __('Run Mode:') . "</td>";
       echo "<td>";
-      Dropdown::showFromArray('run_mode', array('None' => 'None','Serial'=>'Serial','Parallel' => 'Parallel'), array('value' => $my_config['run_mode']));
+      Dropdown::showFromArray('run_mode', array('None' => __('None'),'Serial'=>__('Serial'),'Parallel' => __('Parallel')), array('value' => $my_config['run_mode']));
       echo "</td>";
       echo "<td >" . __('EasyNoVNC Installed:') . "</td>";
       echo "<td>";

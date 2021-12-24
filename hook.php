@@ -25,18 +25,17 @@ function plugin_remotesupport_install()
 {
     global $DB;
 
-   $config = new Config();
-   $config->setConfigurationValues('plugin:Remotesupport', 
-	 [ 'run_mode' => 'None', 
-	   'threads' => 100,
-	   'show_in_tickets' => true, 
-	   'show_in_computers' => true,
-	   'easy_novnc' => true,
-	   'fusion' => true]
-	 );
+    $config = new Config();
+    $config->setConfigurationValues('plugin:Remotesupport',
+        ['run_mode' => 'None',
+            'threads' => 100,
+            'show_in_tickets' => true,
+            'show_in_computers' => true,
+            'easy_novnc' => true,
+            'fusion' => true]
+    );
 
-
-    Toolbox::logInFile("remotsupport", "Installing plugin");
+    Toolbox::logInFile("remotesupport", "Installing plugin");
     $state_online = [
         'name' => 'Online',
         'entities_id' => 0,
@@ -105,8 +104,9 @@ function plugin_remotesupport_uninstall()
 function plugin_remotesupport_postinit()
 {
     global $CFG_GLPI, $DB;
+    $config = Config::getConfigurationValues('plugin:Remotesupport');
 
-    if (isset($_GET['id']) && $_GET['id'] != 0 && isset($_GET['_itemtype']) && $_GET['_itemtype'] == "Ticket") {
+    if (isset($_GET['id']) && $_GET['id'] != 0 && isset($_GET['_itemtype']) && $_GET['_itemtype'] == "Ticket" && $config["show_in_tickets"]) {
         $id = $_GET['id'];
 
         //mysql> select * from glpi_tickets_users where tickets_id = 2 and type = 1;

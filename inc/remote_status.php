@@ -8,13 +8,19 @@ global $DB, $agents;
 
 $check_arr = [];
 $comps = [];
+
+$rs_path = Plugin::getPhpDir('remotesupport');
+
+$pfConfig = new PluginFusioninventoryConfig();
+$port = $pfConfig->getValue('agent_port');
+
 $pfInventoryComputerComputer = new PluginFusioninventoryInventoryComputerComputer();
 foreach (getAllDataFromTable(PluginFusioninventoryAgent::getTable()) as $a) {
 
     $check = [];
     $a_computerextend = $pfInventoryComputerComputer->hasAutomaticInventory($a["computers_id"]);
 
-    $check["url"] = "http://" . $a_computerextend["remote_addr"] . ":62354/status";
+    $check["url"] = "http://" . $a_computerextend["remote_addr"] . ":" . $port . "/status";
     $check["id"] = $a["id"];
     $check["computers_id"] = $a["computers_id"];
     $check["status"] = "unknown";
@@ -31,9 +37,9 @@ $descriptorspec = array(
 );
 
 $cwd = '/tmp';
-$env = array('debug' => 'false');
+$env = array('debug' => 'false', 'threads' => 100);
 
-$process = proc_open(__DIR__ . '/check_status', $descriptorspec, $pipes, $cwd, $env);
+$process = proc_open($rs_path . '/bin/check_status', $descriptorspec, $pipes, $cwd, $env);
 
 if (is_resource($process)) {
     // $pipes now looks like this:
